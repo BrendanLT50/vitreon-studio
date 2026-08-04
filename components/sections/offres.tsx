@@ -35,7 +35,7 @@ const plans = [
   {
     name: 'Vitréon Signature',
     price: '2490€',
-    summary: 'Une vitrine sur mesure pour les entreprises exigeantes.',
+    summary: 'Une vitrine sur mesure pour les entreprises qui veulent se démarquer.',
     features: [
       'Site sur mesure',
       'Animations',
