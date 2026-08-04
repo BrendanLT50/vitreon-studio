@@ -1,5 +1,7 @@
 'use server'
 
+import { Resend } from 'resend'
+
 export type ContactState = {
   status: 'idle' | 'success' | 'error'
   message: string
@@ -38,18 +40,42 @@ export async function envoyerDemande(
     }
   }
 
-  console.log('[v0] Nouvelle demande de diagnostic:', {
-    nom,
-    entreprise,
-    email,
-    telephone,
-    secteur,
-    messageLength: message.length,
-  })
+  const resend = new Resend(process.env.RESEND_API_KEY)
 
-  return {
-    status: 'success',
-    message:
-      'Merci ! Votre demande est bien reçue. Nous revenons vers vous sous 24 heures ouvrées avec votre diagnostic.',
+  console.log("Clé Resend présente :", !!process.env.RESEND_API_KEY)
+
+  try {
+    await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: 'brendanletallec@gmail.com',
+      replyTo: email,
+      subject: `Nouvelle demande Vitréon Studio - ${entreprise}`,
+      html: `
+        <h2>Nouvelle demande de diagnostic</h2>
+
+        <p><strong>Nom :</strong> ${nom}</p>
+        <p><strong>Entreprise :</strong> ${entreprise}</p>
+        <p><strong>Email :</strong> ${email}</p>
+        <p><strong>Téléphone :</strong> ${telephone}</p>
+        <p><strong>Secteur :</strong> ${secteur}</p>
+
+        <h3>Message :</h3>
+        <p>${message}</p>
+      `,
+    })
+
+    return {
+      status: 'success',
+      message:
+        'Merci ! Votre demande est bien reçue. Nous revenons vers vous sous 24 heures ouvrées avec votre diagnostic.',
+    }
+  } catch (error) {
+    console.error(error)
+
+    return {
+      status: 'error',
+      message:
+        'Une erreur est survenue lors de l’envoi. Merci de réessayer.',
+    }
   }
 }
